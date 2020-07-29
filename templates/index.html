@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <title>Tabbable Test</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+            integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+        <!-- genrate excel file -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.2/xlsx.full.min.js"></script>
+        <!-- Add additional CSS in static file -->
+        {% load static %}
+        <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+        <style>
+            body {
+                background-color: rgb(38, 42, 43);
+                color: #fff;
+
+            }
+
+            .row {
+                padding-top: 200px;
+                margin: 0 auto;
+            }
+
+            .form__heading {
+                font-size: 2.5rem;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-0 col-md-3"></div>
+                <div class="col col-sm-12 col-md-6">
+                    <form id="URL_form">
+                        <h3 class="form__heading text-center mb-2">Tabbable Test</h3>
+                        <div class="form-group mt-5">
+                            <div class="input-group mb-3">
+                                <input type="text" id="urlInput" class="form-control" placeholder="Enter valid url"
+                                    aria-label="url">
+                                <div class="input-group-append">
+                                    <button class="btn btn-outline-info" type="submit">Get Data</button>
+                                </div>
+                            </div>
+                    </form>
+                    <div id="notValidUrl" class="alert alert-danger d-none" role="alert">
+                        URL is not valid, check the url again
+                    </div>
+                    <div id="data_fetch" class="alert alert-danger d-none" role="alert">
+                        data fetch complete
+                    </div>
+                    <div class="util-buttons">
+                        <button id="download-button" class="download-button btn btn-secondary mr-3 disabled"
+                            type='button' onclick="downloadAsExcel()">download log file</button>
+                        <button class="download-button btn btn-info disabled">run selenium</button>
+                    </div>
+                </div>
+
+            </div>
+            <div class="col-sm-0 col-md-3 "></div>
+        </div>
+        </div>
+        <script src="{% static 'js/main.js' %}"></script>
+        <!-- <script type="module" src="{% static 'js/fileSaver.js' %}"></script> -->
+    </body>
+
+</html>
