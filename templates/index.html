@@ -42,7 +42,7 @@
                                 <input type="text" id="urlInput" class="form-control" placeholder="Enter valid url"
                                     aria-label="url">
                                 <div class="input-group-append">
-                                    <button class="btn btn-outline-info" type="submit">Get Data</button>
+                                    <button class="btn btn-outline-info" type="submit">connect</button>
                                 </div>
                             </div>
                     </form>
@@ -53,6 +53,8 @@
                         data fetch complete
                     </div>
                     <div class="util-buttons">
+                        <button id="fetch-button" class="fetch-button btn btn-danger mr-3 disabled" type='button'
+                            onclick="get_data()">fetch data</button>
                         <button id="download-button" class="download-button btn btn-secondary mr-3 disabled"
                             type='button' onclick="downloadAsExcel()">download log file</button>
                         <button class="download-button btn btn-info disabled">run selenium</button>

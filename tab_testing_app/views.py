@@ -25,19 +25,37 @@ def compare_focus_elements(elements,j=0):
         return False
     return flag == 0
 
+# set up
+driver=None
+window_handles = None
+globalData = []
 
-def get_data(URL):
-    print("get data")
-    driver = webdriver.Chrome(executable_path=r"C:\Users\Sumax\Desktop\Selenium\chromedriver.exe")
+def set_up(URL):
+    # URL = 'https://www.google.com/'
+    
+    try:
+        global driver,window_handles,globalData
+        globalData = []
+        driver = webdriver.Chrome(executable_path=r"C:\Users\Sumax\Desktop\Selenium\chromedriver.exe")
+        driver.maximize_window()
+        driver.get(URL)
+        window_handles = driver.window_handles
+        return True
+    except Exception:
+        print(Exception);
+        return False
+    
 
-    #URL = 'https://www.facebook.com/'
-   
-    driver.maximize_window()
-    driver.get(URL)
+def get_data():
 
+    global window_handles,driver
+    window_handles = driver.window_handles
+    driver.switch_to.window(window_handles[len(window_handles)-1])
+    
     # get the current page title
-    page_title = driver.execute_script("return document.title")
-    print(page_title)
+    print(driver.title)
+    page_title = driver.title
+
     # -- java-script
     # get the focusable elements then filter the elements that are present in current DOM state
     elements = driver.execute_script("""
@@ -65,11 +83,6 @@ def get_data(URL):
         value = elements[el].get_attribute("value")
         label = elements[el].get_attribute("aria-label")
         outerHTML = elements[el].get_attribute("outerHTML")
-        # if name:d['name'] = name
-        # if text:d['text'] = text
-        # if title:d['title'] = title
-        # if value:d['value'] = value
-        # if label: d['label'] =label
     
         if name:d['element'] = name
         elif text:d['element'] = text
@@ -79,7 +92,7 @@ def get_data(URL):
 
         d['HTML_tag'] = outerHTML
         data.append(d)
-
+    print(len(data))
     return data
 
 # this function gets fired at endpoint '/'
@@ -87,9 +100,20 @@ def index(request):
 
     if request.method == 'POST':  
         body_unicode = request.body.decode('utf-8')
-        url = json.loads(body_unicode)
-        
-        data = get_data(url) # util_function ; returns array of objects 
-        return JsonResponse(data, safe=False)
+        req_data = json.loads(body_unicode)
+        if req_data['type'] == 'SET_UP':
+            print("setup called")
+            result = set_up(req_data['url'])
+            if result:
+                return JsonResponse({"res":"True"}, safe=False)
+            else:
+                return JsonResponse({"res":"False"}, safe=False)
+
+        elif req_data['type'] == 'GET_DATA':
+            print("get_data")
+            result = get_data()    
+            global globalData
+            globalData = globalData + result
+        return JsonResponse(globalData, safe=False)
     return render(request, 'index.html')
 

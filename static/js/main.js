@@ -1,8 +1,9 @@
-
 const EXCEL_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
 const EXCEL_EXTENSION = '.xls';
 
 var JSONdata;
+var isConnected = false;
+
 
 function getCookie(name) {
     var cookieValue = null;
@@ -25,7 +26,25 @@ function validateUrl(value) {
     console.log("validate", value);
     return /^(?:(?:(?:https?|ftp):)?\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:[/?#]\S*)?$/i.test(value);
 }
-const handleFormSubmit = (event) => {
+
+const fetch_api = (payload, callback = undefined) => {
+    fetch('http://127.0.0.1:8000/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': csrftoken,
+        },
+        body: JSON.stringify(payload)
+    }).then(res => res.json())
+        .then(data => {
+            console.log(data);
+            callback(data)
+        })
+        .then(error => console.log(error))
+}
+
+const send_url = (event) => {
     event.preventDefault();
     var givenURL = document.getElementById("urlInput").value;
 
@@ -40,27 +59,29 @@ const handleFormSubmit = (event) => {
         console.log("valid url")
         document.getElementById('notValidUrl').classList.add('d-none')
     }
+    payload = {
+        'type': 'SET_UP',
+        'url': givenURL
+    }
 
-    fetch('http://127.0.0.1:8000/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-            'X-Requested-With': 'XMLHttpRequest',
-            'X-CSRFToken': csrftoken,
-        },
-        body: JSON.stringify(givenURL)
-    }).then(res => res.json())
-        .then(data => {
-            console.table(data)
-            JSONdata = data
-            document.getElementById('download-button').classList.remove('disabled')
-        })
-        .then(error => console.log(error))
+    const callback = (data) => {
+        if (data.res == 'True') {
+            isConnected = true
+            document.getElementById('fetch-button').classList.remove('disabled')
+        }
+        else {
+            window.alert("try again")
+        }
+    }
+
+    fetch_api(payload, callback)
+
+
 }
 const urlChecker = document.getElementById("URL_form");
 
 // add 'submit' event listener to the form
-urlChecker.addEventListener('submit', handleFormSubmit);
+urlChecker.addEventListener('submit', send_url);
 
 // const sendCheckRequest = (event) => {
 
@@ -71,7 +92,18 @@ urlChecker.addEventListener('submit', handleFormSubmit);
 //         body: JSON.stringify(inputVal)
 //     }).then(res => res.json()).then(data => console.log(data))
 // }
+const get_data = () => {
+    data = {
+        type: 'GET_DATA'
+    }
+    const callback = (data) => {
+        JSONdata = data
+        console.table(JSONdata)
+        document.getElementById('download-button').classList.remove('disabled')
+    }
+    fetch_api(data, callback)
 
+}
 const downloadAsExcel = () => {
     const workSheet = XLSX.utils.json_to_sheet(JSONdata)
     const workbook = {
